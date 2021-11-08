@@ -2,8 +2,8 @@ from django.contrib.auth.models import User, Group
 from rest_framework import permissions
 from rest_framework import viewsets
 
-from banrau.models import Product
-from banrau.serializers import UserSerializer, GroupSerializer, ProductSerializer
+from banrau.models import Product, Category
+from banrau.serializers import UserSerializer, GroupSerializer, ProductSerializer, CategorySerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -27,4 +27,10 @@ class GroupViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]

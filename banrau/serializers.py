@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 
-from banrau.models import Product
+from banrau.models import Product, Category
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -16,7 +16,13 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'name']
 
 
-class ProductSerializer(serializers.HyperlinkedModelSerializer):
+class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
+        exclude = []
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
         exclude = []
