@@ -1,6 +1,9 @@
+from django.db.models import Q
 from django.contrib.auth.models import User, Group
+from django.http import response
 from rest_framework import permissions
 from rest_framework import viewsets
+from rest_framework.decorators import api_view
 
 from banrau.models import Product, Category
 from banrau.serializers import UserSerializer, GroupSerializer, ProductSerializer, CategorySerializer
@@ -34,3 +37,14 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+@api_view(['POST'])
+def search(request):
+    query = request.data.get('query', '')
+    
+    if query:
+        products = Product.objects.filter(Q(name__icontains=query) | Q(description_icontains= query))
+        serializer = ProductSerializer(products, many = True)
+        return response(serializer.data)
+    else:
+        return response({"products": []})
