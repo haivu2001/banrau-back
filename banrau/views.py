@@ -79,7 +79,7 @@ def deleteAccount(request):
         print (e)
         return Response({'error' : 500})
 
-@api_view(['PUT'])
+@api_view(['POST'])
 def changePassword(request):
     username = request.data.get('username')
     newPass = request.data.get('password')
@@ -100,6 +100,7 @@ def updateUserProfile(request):
         user.first_name = form.get('first_name')
         user.last_name = form.get('last_name')
         user.email = form.get('email')
+        user.save()
         return Response({'message' : 'Update Successful'}) 
     except Exception as e:
         print (e)
