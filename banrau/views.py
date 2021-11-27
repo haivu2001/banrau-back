@@ -1,7 +1,7 @@
 from re import U
 from django.db.models import Q
 from django.contrib.auth.models import User, Group
-# from django.http import response
+from django.http import response
 from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework import viewsets
@@ -48,9 +48,9 @@ def search(request):
     if query:
         products = Product.objects.filter(Q(name__icontains=query) | Q(description_icontains= query))
         serializer = ProductSerializer(products, many = True)
-        return Response(serializer.data)
+        return response(serializer.data)
     else:
-        return Response({"products": []})
+        return response({"products": []})
 
 @api_view(['POST'])
 def register(request):
@@ -82,11 +82,14 @@ def deleteAccount(request):
 @api_view(['POST'])
 def changePassword(request):
     username = request.data.get('username')
-    newPass = request.data.get('password')
+    oldPass = request.data.get('oldpass')
+    newPass = request.data.get('newpass')
     try:
         user = User.objects.get(username = username)
+        if not user.check_password(oldPass):
+            return Response({'error' : 401, 'message' : 'Vui lòng nhập đúng mật khẩu'})
         user.set_password(newPass)
-        return Response({'message' : 'Change password successful'})
+        return Response({'message' : 'Đổi mật khẩu thành công'})
     except Exception as e:
         print(e)
         return Response({'error' : 500})
