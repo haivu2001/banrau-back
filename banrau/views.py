@@ -82,8 +82,8 @@ def deleteAccount(request):
 @api_view(['POST'])
 def changePassword(request):
     username = request.data.get('username')
-    oldPass = request.data.get('oldpass')
-    newPass = request.data.get('newpass')
+    oldPass = request.data.get('oldpassword')
+    newPass = request.data.get('newpassword')
     try:
         user = User.objects.get(username = username)
         if not user.check_password(oldPass):
