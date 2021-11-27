@@ -1,15 +1,21 @@
-from re import U
-from django.db.models import Q
+import rest_framework.generics
 from django.contrib.auth.models import User, Group
-# from django.http import response
-from rest_framework.response import Response
+from django.db.models import Q
+from django.http import response
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
-from banrau import serializers
 
 from banrau.models import Product, Category
 from banrau.serializers import UserSerializer, GroupSerializer, ProductSerializer, CategorySerializer
+
+
+class CreateUserView(rest_framework.generics.CreateAPIView):
+    model = User
+    permission_classes = [
+        permissions.AllowAny  # Or anon users can't register
+    ]
+    serializer_class = UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -40,69 +46,15 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    
+
+
 @api_view(['POST'])
 def search(request):
     query = request.data.get('query', '')
-    
+
     if query:
-        products = Product.objects.filter(Q(name__icontains=query) | Q(description_icontains= query))
-        serializer = ProductSerializer(products, many = True)
-        return Response(serializer.data)
+        products = Product.objects.filter(Q(name__icontains=query) | Q(description_icontains=query))
+        serializer = ProductSerializer(products, many=True)
+        return response(serializer.data)
     else:
-        return Response({"products": []})
-
-@api_view(['POST'])
-def register(request):
-    form = request.data
-    # print(form)
-    try:
-        user = User.objects.create_user(
-            username = form.get("username"),
-            password = form.get("password"),
-            email = form.get("email"),
-        )
-        serializers = UserSerializer(user, context={'request': None})
-        return Response(serializers.data)
-    except Exception as e:
-        print(e)
-        return Response({"error": "Tên tài khoản đã tồn tại"})
-
-@api_view(['DELETE'])
-def deleteAccount(request):
-    username = request.data.get("username")
-    try:
-        user = User.objects.get(username = username)
-        user.delete()
-        return Response ({"message" : "Tài khoản của bạn đã được xóa"})
-    except Exception as e:
-        print (e)
-        return Response({'error' : 500})
-
-@api_view(['POST'])
-def changePassword(request):
-    username = request.data.get('username')
-    newPass = request.data.get('password')
-    try:
-        user = User.objects.get(username = username)
-        user.set_password(newPass)
-        return Response({'message' : 'Change password successful'})
-    except Exception as e:
-        print(e)
-        return Response({'error' : 500})
-
-@api_view(['POST'])
-def updateUserProfile(request):
-    form = request.data
-    username = form.get("username")
-    try:
-        user = User.objects.get(username = username)
-        user.first_name = form.get('first_name')
-        user.last_name = form.get('last_name')
-        user.email = form.get('email')
-        user.save()
-        return Response({'message' : 'Update Successful'}) 
-    except Exception as e:
-        print (e)
-        return Response({'error' : 500})
-    
+        return response({"products": []})
