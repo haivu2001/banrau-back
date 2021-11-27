@@ -29,7 +29,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
     path('product/search', views.search),
-    path('register', views.CreateUserView.as_view())
 ]
 
 urlpatterns += [
