@@ -82,13 +82,15 @@ def deleteAccount(request):
 @api_view(['POST'])
 def changePassword(request):
     username = request.data.get('username')
-    oldPass = request.data.get('oldpass')
-    newPass = request.data.get('newpass')
+    oldPass = request.data.get('oldpassword')
+    newPass = request.data.get('newpassword')
     try:
         user = User.objects.get(username = username)
         if not user.check_password(oldPass):
+            print('Password incorrect')
             return Response({'error' : 401, 'message' : 'Vui lòng nhập đúng mật khẩu'})
         user.set_password(newPass)
+        user.save()
         return Response({'message' : 'Đổi mật khẩu thành công'})
     except Exception as e:
         print(e)
