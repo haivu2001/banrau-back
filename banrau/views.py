@@ -1,9 +1,12 @@
+from re import U
 from django.db.models import Q
 from django.contrib.auth.models import User, Group
-from django.http import response
+# from django.http import response
+from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
+from banrau import serializers
 
 from banrau.models import Product, Category
 from banrau.serializers import UserSerializer, GroupSerializer, ProductSerializer, CategorySerializer
@@ -45,6 +48,60 @@ def search(request):
     if query:
         products = Product.objects.filter(Q(name__icontains=query) | Q(description_icontains= query))
         serializer = ProductSerializer(products, many = True)
-        return response(serializer.data)
+        return Response(serializer.data)
     else:
-        return response({"products": []})
+        return Response({"products": []})
+
+@api_view(['POST'])
+def register(request):
+    form = request.data
+    # print(form)
+    try:
+        user = User.objects.create_user(
+            username = form.get("username"),
+            password = form.get("password"),
+            email = form.get("email"),
+        )
+        serializers = UserSerializer(user, context={'request': None})
+        return Response(serializers.data)
+    except Exception as e:
+        print(e)
+        return Response({"error": "Tên tài khoản đã tồn tại"})
+
+@api_view(['DELETE'])
+def deleteAccount(request):
+    username = request.data.get("username")
+    try:
+        user = User.objects.get(username = username)
+        user.delete()
+        return Response ({"message" : "Tài khoản của bạn đã được xóa"})
+    except Exception as e:
+        print (e)
+        return Response({'error' : 500})
+
+@api_view(['PUT'])
+def changePassword(request):
+    username = request.data.get('username')
+    newPass = request.data.get('password')
+    try:
+        user = User.objects.get(username = username)
+        user.set_password(newPass)
+        return Response({'message' : 'Change password successful'})
+    except Exception as e:
+        print(e)
+        return Response({'error' : 500})
+
+@api_view(['POST'])
+def updateUserProfile(request):
+    form = request.data
+    username = form.get("username")
+    try:
+        user = User.objects.get(username = username)
+        user.first_name = form.get('first_name')
+        user.last_name = form.get('last_name')
+        user.email = form.get('email')
+        return Response({'message' : 'Update Successful'}) 
+    except Exception as e:
+        print (e)
+        return Response({'error' : 500})
+    
