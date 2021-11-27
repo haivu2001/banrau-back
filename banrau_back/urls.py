@@ -28,11 +28,8 @@ router.register(r'categories', views.CategoryViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
-    path('product/search/', views.search),
-    path('user/register/', views.register),
-    path('user/delete/', views.deleteAccount),
-    path('user/update/', views.updateUserProfile),
-    path('user/change_password/', views.changePassword)
+    path('product/search', views.search),
+    path('register', views.CreateUserView.as_view())
 ]
 
 urlpatterns += [

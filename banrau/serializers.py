@@ -5,9 +5,19 @@ from banrau.models import Product, Category
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password'],
+        )
+
+        return user
+
     class Meta:
         model = User
-        fields = ['url', 'username', 'email', 'groups']
+        fields = ['url', 'username', 'password', 'email', 'groups']
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
